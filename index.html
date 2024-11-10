@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Cancer Classification - DAS medhub</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #008000; /* Green for DAS */
+            display: inline;
+        }
+
+        h1 span {
+            color: #FFA500; /* Orange for medhub */
+        }
+
+        #image-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 450px;
+        }
+
+        #uploaded-image {
+            max-width: 80%;
+            max-height: 450px;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        #predict-button {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #predict-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #loading-message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #FF0000;
+        }
+
+        #gradcam-container {
+            margin-top: 20px;
+        }
+
+        #gradcam-image {
+            max-width: 80%;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>DAS <span>medhub</span></h1>
+    <h2>Multi-Cancer Classification</h2>
+
+    <div id="loading-message">Loading model, please wait...</div>
+
+    <input type="file" id="image-upload" accept="image/*" disabled>
+    <button id="predict-button" onclick="predict()">Predict</button>
+
+    <div id="image-container">
+        <img id="uploaded-image" src="#" alt="Uploaded Image">
+    </div>
+
+    <div id="result"></div>
+
+    <div id="gradcam-container">
+        <h3>Grad-CAM Visualization</h3>
+        <img id="gradcam-image" alt="Grad-CAM Image">
+    </div>
+
+    <script>
+    let model;
+
+    if (tf.backend().name === 'webgl') {
+        console.log('Using WebGL backend');
+        loadModel();
+    } else {
+        tf.setBackend('cpu').then(() => {
+            console.log('Using CPU backend');
+            loadModel();
+        });
+    }
+
+    async function loadModel() {
+        try {
+            model = await tf.loadGraphModel('model/model.json');
+            console.log('Model loaded successfully');
+            document.getElementById('loading-message').style.display = 'none';
+            document.getElementById('image-upload').disabled = false;
+        } catch (error) {
+            console.error('Error loading model:', error);
+            document.getElementById('loading-message').innerText = 'Error loading model';
+        }
+    }
+
+    const imageUpload = document.getElementById('image-upload');
+    const uploadedImage = document.getElementById('uploaded-image');
+    const predictButton = document.getElementById('predict-button');
+    const resultDiv = document.getElementById('result');
+    const gradCamImage = document.getElementById('gradcam-image');
+
+    imageUpload.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        resultDiv.innerText = '';  // Clear previous prediction result
+        gradCamImage.style.display = 'none';  // Hide Grad-CAM image
+
+        reader.onload = function(e) {
+            uploadedImage.src = e.target.result;
+            uploadedImage.style.display = 'block';
+            predictButton.style.display = 'inline-block';
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    });
+
+    async function predict() {
+        try {
+            predictButton.disabled = true;
+            resultDiv.innerText = 'Predicting...';
+
+            const tensorImg = tf.browser.fromPixels(uploadedImage)
+                .resizeBilinear([224, 224])
+                .toFloat()
+                .div(tf.scalar(255))
+                .expandDims();
+            
+            const logits = model.predict(tensorImg);
+            const predictions = logits.arraySync()[0];
+
+              const classNames = ['Acute Lymphoblastic Leukemia Benign', 'Acute Lymphoblastic Leukemia Early', 'Acute Lymphoblastic Leukemia Pre', 'Acute Lymphoblastic Leukemia Pro', 
+                'Brain Glioma', 'Brain Meningioma', 'Brain Tumor', 
+                'Breast Benign', 'Breast Malignant', 
+                'Cervix Dyskeratotic', 'Cervix Koilocytotic', 'Cervix Metaplastic', 'Cervix Parabasal', 
+                'Cervix Superficial Intermediate', 'Colon Adenocarcinoma', 'Colon Benign Tissue', 
+                'Kidney Normal', 'Kidney Tumor', 
+                'Lung Adenocarcinoma', 'Lung Benign Tissue', 'Lung Squamous Cell Carcinoma', 
+                'Chronic Lymphocytic Leukemia', 'Follicular Lymphoma', 'Mantle Cell Lymphoma', 
+                'Oral Normal', 'Oral Squamous Cell Carcinoma'];
+
+
+            const predictedClassIndex = predictions.indexOf(Math.max(...predictions));
+            const result = `Prediction: ${classNames[predictedClassIndex]} (Confidence: ${(Math.max(...predictions) * 100).toFixed(1)}%)`;
+            resultDiv.innerText = result;
+
+            await getGradCam();  // Generate and display Grad-CAM
+
+            predictButton.disabled = false;
+        } catch (error) {
+            console.error('Error making prediction:', error);
+            resultDiv.innerText = 'Error making prediction, refresh browser';
+            predictButton.disabled = false;
+        }
+    }
+
+    async function getGradCam() {
+        try {
+            const tensorImg = tf.browser.fromPixels(uploadedImage)
+                .resizeBilinear([224, 224])
+                .toFloat()
+                .div(tf.scalar(255))
+                .expandDims();
+
+            const imageData = Array.from(tensorImg.dataSync());
+
+            const response = await fetch('http://localhost:5000/gradcam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageData: imageData })
+            });
+
+            if (!response.ok) throw new Error('Failed to generate Grad-CAM');
+
+            const data = await response.json();
+            gradCamImage.src = 'data:image/png;base64,' + data.gradCam;
+            gradCamImage.style.display = 'block';
+        } catch (error) {
+            console.error('Error generating Grad-CAM:', error);
+        }
+    }
+    </script>
+</body>
+</html>
