@@ -110,7 +110,7 @@
 
     async function loadModel() {
         try {
-            model = await tf.loadGraphModel('model/model.json');
+            model = await tf.loadGraphModel('resnet_model/model.json');
             console.log('Model loaded successfully');
             document.getElementById('loading-message').style.display = 'none';
             document.getElementById('image-upload').disabled = false;
