@@ -45,6 +45,7 @@ The model was trained on a **curated composite dataset** of **130,000+ images** 
 
 ### **Class List (26)**
 ```python
+Folder Names
 [
  'all_benign', 'all_early', 'all_pre', 'all_pro',
  'brain_glioma', 'brain_menin', 'brain_tumor',
@@ -56,6 +57,20 @@ The model was trained on a **curated composite dataset** of **130,000+ images** 
  'lymph_cll', 'lymph_fl', 'lymph_mcl',
  'oral_normal', 'oral_scc'
 ]
+Actual Names
+[ 'Acute Lymphoblastic Leukemia Benign', 'Acute Lymphoblastic Leukemia Early',
+    'Acute Lymphoblastic Leukemia Pre', 'Acute Lymphoblastic Leukemia Pro',
+    'Brain Glioma', 'Brain Meningioma', 'Brain Tumor',
+    'Breast Benign', 'Breast Malignant',
+    'Cervix Dyskeratotic', 'Cervix Koilocytotic', 'Cervix Metaplastic',
+    'Cervix Parabasal', 'Cervix Superficial Intermediate',
+    'Colon Adenocarcinoma', 'Colon Benign Tissue',
+    'Kidney Normal', 'Kidney Tumor',
+    'Lung Adenocarcinoma', 'Lung Benign Tissue', 'Lung Squamous Cell Carcinoma',
+    'Chronic Lymphocytic Leukemia', 'Follicular Lymphoma', 'Mantle Cell Lymphoma',
+    'Oral Normal', 'Oral Squamous Cell Carcinoma'
+]
+
 ```
 
 ### **Environment & Dependencies**
