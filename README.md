@@ -19,7 +19,7 @@ We introduce a **lightweight, privacy-preserving, and browser-accessible** deep 
 
 This repository provides **complete code**, **training scripts**, **conversion utilities**, and **documentation** to reproduce:
 
-- The **26-class multi-cancer classification model** (99.73% Top-1 accuracy)
+- The **26-class multi-cancer classification model** (99.85% Top-1 accuracy)
 - **Client-side browser deployment** using TensorFlow.js
 - **Grad-CAM interpretability visualizations**
 - **Training pipeline** with data augmentation and hyperparameter settings
@@ -164,7 +164,7 @@ While the current model achieves state-of-the-art results, the following **resea
 5. **Prospective Clinical Trials**  
    → Validate impact on **diagnostic accuracy, time-to-diagnosis, and clinician workflow**.
 
-> 📬 **We welcome collaborations** for clinical validation and dataset sharing.
+> 📬 **We welcome collaborations** for further clinical validation and dataset sharing.
 
 ---
 
