@@ -1,7 +1,6 @@
 # 🧬 Browser-Based Multi-Cancer Classification Framework Using Depthwise Separable Convolutions  
 
-![TensorFlow.js](https://img.shields.io/badge/Made%20with-TensorFlow.js-orange?logo=tensorflow)    ![License](https://img.shields.io/badge/License-MIT-blue.svg)  
-![Status](https://img.shields.io/badge/Demo-Live-success?logo=huggingface)     ![Platform](https://img.shields.io/badge/Platform-Browser--Based-green)
+![TensorFlow.js](https://img.shields.io/badge/Made%20with-TensorFlow.js-orange?logo=tensorflow)    ![License](https://img.shields.io/badge/License-MIT-blue.svg)  ![Status](https://img.shields.io/badge/Demo-Live-success?logo=huggingface)   ![Platform](https://img.shields.io/badge/Platform-Browser--Based-green)
 
 ---
 
